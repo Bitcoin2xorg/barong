@@ -1,8 +1,23 @@
-admin:
-  email:          "admin@barong.io"
+admins:
+  - email:    admin@barong.io
+    password: changeme
+    profile:
+      first_name: Admin
+      last_name: Admin
+      city: Paris
+      country: FR
+      first_name: Admin
+      last_name: Adminovich
+      dob: 01/01/1970
+      address: Kek st. 14
+      postcode: 12345
+      city: Paris
+      country: FRA
+      state: approved
+
 applications:
-  - name:         "Local Peatio"
-    redirect_uri: "http://localhost:8000/auth/barong/callback"
-    uid:          "a68be319fca51caca60eed5711226e568bd1c1d13ff452b945515f1a6ffbaca4"
-    secret:       "ab80e2c843861c4d23e63f5472cd1c9ee6f55e388863e21f22b03a9093977f29"
+  - name:         Peatio
+    redirect_uri: http://peatio:8000/auth/barong/callback
+    uid:          <%= SecureRandom.hex(32) %>
+    secret:       <%= SecureRandom.hex(32) %>
     skipauth:     true
