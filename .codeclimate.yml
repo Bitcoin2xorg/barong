@@ -9,12 +9,12 @@ engines:
     enabled: true
   fixme:
     enabled: true
-  duplication:
-    enabled: true
-    config:
-      languages:
-        - ruby:
-        - javascript:
+ratings:
+  paths:
+  - app/**
+  - lib/**
 exclude_patterns:
   - db/schema.rb
   - ci/bump.rb
+  - vendor/assets
+  - public

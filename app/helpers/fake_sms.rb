@@ -12,7 +12,7 @@ class FakeSMS
     self
   end
 
-  def create(h)
-    self.class.messages << OpenStruct.new(h)
+  def create(res)
+    self.class.messages << OpenStruct.new(res)
   end
 end

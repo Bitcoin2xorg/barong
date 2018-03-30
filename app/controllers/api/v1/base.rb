@@ -3,22 +3,20 @@
 module API
   module V1
     class Base < Grape::API
-      format :json
+      version 'v1', using: :path
 
-      mount API::V1::Accounts
-      mount API::V1::Profiles
-      mount API::V1::Security
+      mount V1::Accounts
+      mount V1::Profiles
+      mount V1::Security
 
-      add_swagger_documentation base_path: '/api',
+      add_swagger_documentation doc_version: Barong::Version,
                                 info: {
                                   title: 'Barong',
                                   description: 'API for barong OAuth server '
                                 },
-                                api_version: 'v1',
-                                target_class: API::V1::Accounts,
-                                hide_format: true,
-                                hide_documentation_path: true,
-                                mount_path: '/swagger_doc'
+                                target_class: API::V1,
+                                # hide_documentation_path: true,
+                                mount_path: '/docs'
 
       route :any, '*path' do
         raise StandardError, 'Unable to find endpoint'

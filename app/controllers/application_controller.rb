@@ -8,7 +8,7 @@ class ApplicationController < ActionController::Base
   helper_method :domain_asset
 
   def domain_asset(item)
-    @website ||= Website.find_by_domain(request.domain)
+    @website ||= Website.find_by(domain: request.domain)
     @website[item] unless @website.nil? || @website[item].nil?
   end
 

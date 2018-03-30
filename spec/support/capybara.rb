@@ -21,11 +21,11 @@ if ENV.key?('SELENIUM_HOST')
   end
 else
   Capybara.register_driver :chrome do |app|
-    headless = !ENV['CHROME_HEADLESS'].in?(%w[ 0 false ])
-    debug    = ENV['CHROME_DEBUG'].in?(%w[ 1 true ])
+    headless = !ENV['CHROME_HEADLESS'].in?(%w[0 false])
+    debug    = ENV['CHROME_DEBUG'].in?(%w[1 true])
 
     driver_options = { args: [] }
-    driver_options[:args] << '--log-path=' + Rails.root.join('log/chromedriver.log').to_s
+    driver_options[:args] << '--log-path=' + Rails.root.join('log', 'chromedriver.log').to_s
     driver_options[:args] << '--verbose' if debug
 
     browser_options = Selenium::WebDriver::Chrome::Options.new
@@ -37,9 +37,9 @@ else
     browser_options.args << '--disable-extensions'
 
     Capybara::Selenium::Driver.new app, \
-      browser:     :chrome,
-      options:     browser_options,
-      driver_opts: driver_options
+                                   browser:     :chrome,
+                                   options:     browser_options,
+                                   driver_opts: driver_options
   end
 end
 

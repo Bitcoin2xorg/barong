@@ -48,7 +48,7 @@ class Account < ApplicationRecord
   end
 
   def assign_uid
-    return unless uid.blank?
+    return if uid.present?
     loop do
       self.uid = random_uid
       break unless Account.where(uid: uid).any?

@@ -11,9 +11,9 @@ class Document < ApplicationRecord
 
   validates :upload, length: { maximum: 10.megabytes }
   validates :doc_number, length: { maximum: 128 }
-  validates_format_of :doc_expire,
-                       with: /\d{4}\-\d{2}\-\d{2}/,
-                       message: 'Date must be in the following format: yyyy-mm-dd'
+  validates :doc_expire,
+            format: { with: /\d{4}\-\d{2}\-\d{2}/,
+                      message: 'Date must be in the following format: yyyy-mm-dd' }
 end
 
 # == Schema Information

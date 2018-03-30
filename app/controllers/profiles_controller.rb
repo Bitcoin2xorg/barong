@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 class ProfilesController < ApplicationController
-  before_action :set_profile, only: %i[edit update destroy]
+  before_action :set_profile, only: %i[destroy]
   before_action :authenticate_account!
 
   # GET /profiles/new
   def new
-    redirect_to new_document_path if Profile.find_by_account_id(current_account.id)
+    redirect_to new_document_path if Profile.find_by(account_id: current_account.id)
     if current_account.level < 2
       redirect_to new_phone_path
     else

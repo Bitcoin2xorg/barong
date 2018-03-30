@@ -3,6 +3,6 @@
 FactoryBot.define do
   factory :doorkeeper_application, class: Doorkeeper::Application do
     name { Faker::RickAndMorty.character }
-    redirect_uri { 'https://' + Faker::Internet.url }
+    redirect_uri { Faker::Internet.url }
   end
 end

@@ -23,7 +23,7 @@ private
 
   def otp_enabled?
     uid = find_uid_by_params_email
-    return false unless uid.present?
+    return false if uid.blank?
     Vault::TOTP.exist?(uid)
   end
 
@@ -37,7 +37,7 @@ private
   end
 
   def find_uid_by_params_email
-    Account.find_by_email(resource_params[:email]).try(:uid)
+    Account.find_by(email: resource_params[:email]).try(:uid)
   end
 
 end
