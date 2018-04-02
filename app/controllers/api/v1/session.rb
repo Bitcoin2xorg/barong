@@ -6,6 +6,12 @@ module API
   module V1
     class Session < Grape::API
       desc 'Session related routes'
+      params do
+        requires :email, type: String, desc: 'Account Email'
+        requires :password, type: String, desc: 'Account Password'
+        requires :application_id, type: String, desc: 'Client application id'
+        optional :expires_in
+      end
       resource :session do
         post '/create' do
           acc = Account.find_by(email: params[:email])
