@@ -61,7 +61,7 @@ class Account < ApplicationRecord
 end
 
 # == Schema Information
-# Schema version: 20180220142157
+# Schema version: 20180404153832
 #
 # Table name: accounts
 #
@@ -89,6 +89,7 @@ end
 #  state                  :string(255)      default("pending"), not null
 #  created_at             :datetime         not null
 #  updated_at             :datetime         not null
+#  otp_enabled            :boolean          default(FALSE)
 #
 # Indexes
 #
