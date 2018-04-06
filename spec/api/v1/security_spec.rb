@@ -3,45 +3,44 @@ require 'spec_helper'
 describe 'Api::V1::Security' do
   include_context 'doorkeeper authentication'
 
-  before do
-    WebMock.disable_net_connect!(allow_localhost: false)
-  end
+  let(:url) { '/api/v1/security/renew' }
+  let(:vault_url) { "http://127.0.0.1:8200/v1/totp/keys/#{current_account.uid}" }
 
-  describe 'POST /api/security/renew' do
+  describe 'POST /api/v1/security/renew' do
     it 'Checks if current JWT is valid and returns new valid JWT' do
-      post '/api/security/renew', headers: auth_header
+      post url, headers: auth_header
       expect(response.status).to eq(201)
 
-      post '/api/security/renew',
+      post url,
            headers: { Authorization: "Bearer #{JSON.parse(response.body)}" }
       expect(response.status).to eq(201)
     end
 
     it 'Checks if current JWT is valid and returns JWT with specified liftime' do
-      post '/api/security/renew', params: { expires_in: 1000 }, headers: auth_header
+      post url, params: { expires_in: 1000 }, headers: auth_header
       expect(response.status).to eq(201)
       new_jwt_payload = JWT.decode JSON.parse(response.body), nil, false
       expect(new_jwt_payload.first['exp'].to_i).to be <= Time.now.to_i + 1000
     end
 
     it 'Checks if current JWT is valid and returns error, cause it is not' do
-      post '/api/security/renew'
+      post url
       expect(response.body).to eq("{\"error\":\"The access token is invalid\"}")
     end
 
     it 'Checks if current JWT is valid and returns error, cause it has expired' do
-      post '/api/security/renew', params: { expires_in: 1 }, headers: auth_header
+      post url, params: { expires_in: 1 }, headers: auth_header
       expect(response.status).to eq(201)
       new_jwt = JSON.parse(response.body)
       sleep(2)
-      post '/api/security/renew', headers: { 'Authorization' => "Bearer #{new_jwt}"}
+      post url, headers: { 'Authorization' => "Bearer #{new_jwt}"}
       expect(response.body).to eq("{\"error\":\"The access token expired\"}")
     end
   end
 
-  describe 'POST /api/security/generate_qrcode' do
+  describe 'POST /api/v1/security/generate_qrcode' do
     let(:do_request) do
-      post '/api/security/generate_qrcode', headers: auth_header
+      post '/api/v1/security/generate_qrcode', headers: auth_header
     end
 
     context 'when otp enabled' do
@@ -56,8 +55,7 @@ describe 'Api::V1::Security' do
 
     context 'when otp do not enabled' do
       before do
-        stub_request(:get, "http://vault:8200/v1/totp/keys/#{current_account.uid}")
-          .to_return(status: 200, body: [])
+        stub_request(:get, vault_url).to_return(status: 200, body: [])
       end
 
       it 'generates qr code' do
@@ -67,9 +65,9 @@ describe 'Api::V1::Security' do
     end
   end
 
-  describe 'POST /api/security/enable_2fa' do
+  describe 'POST /api/v1/security/enable_2fa' do
     let(:do_request) do
-      post '/api/security/enable_2fa', params: params, headers: auth_header
+      post '/api/v1/security/enable_2fa', params: params, headers: auth_header
     end
 
     let(:params) {{ code: code }}
@@ -97,8 +95,7 @@ describe 'Api::V1::Security' do
 
     context 'when code is not exists in vault' do
       before do
-        stub_request(:get, "http://vault:8200/v1/totp/keys/#{current_account.uid}")
-          .to_return(status: 404)
+        stub_request(:get, vault_url).to_return(status: 404)
       end
 
       it 'renders an error' do
@@ -139,9 +136,9 @@ describe 'Api::V1::Security' do
     end
   end
 
-  describe 'POST /api/security/verify_code' do
+  describe 'POST /api/v1/security/verify_code' do
     let(:do_request) do
-      post '/api/security/verify_code', params: params, headers: auth_header
+      post '/api/v1/security/verify_code', params: params, headers: auth_header
     end
 
     let(:current_account) { create(:account, otp_enabled: otp_enabled) }
