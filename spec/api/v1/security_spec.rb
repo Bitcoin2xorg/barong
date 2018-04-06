@@ -3,6 +3,10 @@ require 'spec_helper'
 describe 'Api::V1::Security' do
   include_context 'doorkeeper authentication'
 
+  before do
+    WebMock.disable_net_connect!(allow_localhost: false)
+  end
+
   describe 'POST /api/security/renew' do
     it 'Checks if current JWT is valid and returns new valid JWT' do
       post '/api/security/renew', headers: auth_header
@@ -51,10 +55,14 @@ describe 'Api::V1::Security' do
     end
 
     context 'when otp do not enabled' do
+      before do
+        stub_request(:get, "http://vault:8200/v1/totp/keys/#{current_account.uid}")
+          .to_return(status: 200, body: [])
+      end
+
       it 'generates qr code' do
         do_request
         expect(response.status).to eq(201)
-        expect(json_body).to include(:auth, :data)
       end
     end
   end
@@ -88,6 +96,11 @@ describe 'Api::V1::Security' do
     end
 
     context 'when code is not exists in vault' do
+      before do
+        stub_request(:get, "http://vault:8200/v1/totp/keys/#{current_account.uid}")
+          .to_return(status: 404)
+      end
+
       it 'renders an error' do
         do_request
         expect(response.status).to eq(422)

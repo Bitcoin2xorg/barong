@@ -38,21 +38,12 @@ describe 'Api::V1::Accounts' do
       end
     end
 
-    context 'when email is blank' do
-      let(:params) { { email: '', password: 'password' } }
-
-      it 'renders an error' do
-        expect_status_to_eq 422
-        expect_body.to eq(error: ["Email can't be blank"])
-      end
-    end
-
     context 'when email and password are absent' do
       let(:params) {}
 
       it 'renders an error' do
         expect_status_to_eq 400
-        expect_body.to eq(error: 'email is missing, password is missing')
+        expect_body.to eq(error: 'email is missing, email is empty, password is missing, password is empty')
       end
     end
 
