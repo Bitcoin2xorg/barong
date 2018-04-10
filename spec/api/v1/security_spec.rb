@@ -8,7 +8,7 @@ describe 'Api::V1::Security' do
   let(:url) { '/api/v1/security/renew' }
   let(:vault_server) { 'http://127.0.0.1:8200' }
   let(:vault_url) { "#{vault_server}/v1/totp/keys/#{current_account.uid}" }
-  
+
   before { WebMock.disable_net_connect! }
   after { WebMock.allow_net_connect! }
 
