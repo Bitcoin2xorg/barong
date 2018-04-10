@@ -8,6 +8,9 @@ describe 'Api::V1::Security' do
   let(:url) { '/api/v1/security/renew' }
   let(:vault_server) { 'http://127.0.0.1:8200' }
   let(:vault_url) { "#{vault_server}/v1/totp/keys/#{current_account.uid}" }
+  
+  before { WebMock.disable_net_connect! }
+  after { WebMock.allow_net_connect! }
 
   describe 'POST /api/v1/security/renew' do
     it 'Checks if current JWT is valid and returns new valid JWT' do
@@ -49,11 +52,12 @@ describe 'Api::V1::Security' do
     context 'with_vault_error_handler' do
       before do
         stub_request(:get, vault_server).to_timeout
+        stub_request(:get, vault_url).to_timeout
       end
 
       it 'renders an error' do
         do_request
-        expect(json_body[:error]).to include('connection refused')
+        expect(json_body[:error]).to include('Net::OpenTimeout')
         expect(response.status).to eq(500)
       end
     end

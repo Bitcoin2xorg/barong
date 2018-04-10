@@ -43,7 +43,7 @@ describe 'Api::V1::Accounts' do
 
       it 'renders an error' do
         expect_status_to_eq 400
-        expect_body.to eq(error: 'email is missing, email is empty, password is missing, password is empty')
+        expect_body.to eq(error: 'email is missing, password is missing')
       end
     end
 

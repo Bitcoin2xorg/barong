@@ -54,7 +54,7 @@ module API
           with_vault_error_handler do
             error!('You are already enabled 2FA', 400) if current_account.otp_enabled
 
-            unless Vault::TOTP.validate?(current_account.uid, params[:code])
+            unless Vault::TOTP.validate?(current_account.uid, declared(params)[:code])
               error!('Your code is invalid', 422)
             end
 
@@ -73,7 +73,7 @@ module API
           with_vault_error_handler do
             error!('You need to enable 2FA first', 400) unless current_account.otp_enabled
 
-            unless Vault::TOTP.validate?(current_account.uid, params[:code])
+            unless Vault::TOTP.validate?(current_account.uid, declared(params)[:code])
               error!('Your code is invalid', 422)
             end
           end
