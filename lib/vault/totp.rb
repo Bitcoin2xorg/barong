@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Vault
+  # Vault::TOTP helper
   module TOTP
     class <<self
       ISSUER_NAME = 'Barong'
@@ -35,7 +36,7 @@ module Vault
         delete_data(totp_key(uid))
       end
 
-      private
+    private
 
       def totp_key(uid)
         "totp/keys/#{uid}"
