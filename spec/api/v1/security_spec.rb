@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'Api::V1::Security' do
   include_context 'doorkeeper authentication'
 
   let(:url) { '/api/v1/security/renew' }
-  let(:vault_url) { "http://127.0.0.1:8200/v1/totp/keys/#{current_account.uid}" }
+  let(:vault_server) { 'http://127.0.0.1:8200' }
+  let(:vault_url) { "#{vault_server}/v1/totp/keys/#{current_account.uid}" }
 
   describe 'POST /api/v1/security/renew' do
     it 'Checks if current JWT is valid and returns new valid JWT' do
@@ -25,7 +28,7 @@ describe 'Api::V1::Security' do
 
     it 'Checks if current JWT is valid and returns error, cause it is not' do
       post url
-      expect(response.body).to eq("{\"error\":\"The access token is invalid\"}")
+      expect(response.body).to eq('{"error":"The access token is invalid"}')
     end
 
     it 'Checks if current JWT is valid and returns error, cause it has expired' do
@@ -33,14 +36,26 @@ describe 'Api::V1::Security' do
       expect(response.status).to eq(201)
       new_jwt = JSON.parse(response.body)
       sleep(2)
-      post url, headers: { 'Authorization' => "Bearer #{new_jwt}"}
-      expect(response.body).to eq("{\"error\":\"The access token expired\"}")
+      post url, headers: { 'Authorization' => "Bearer #{new_jwt}" }
+      expect(response.body).to eq('{"error":"The access token expired"}')
     end
   end
 
   describe 'POST /api/v1/security/generate_qrcode' do
     let(:do_request) do
       post '/api/v1/security/generate_qrcode', headers: auth_header
+    end
+
+    context 'with_vault_error_handler' do
+      before do
+        stub_request(:get, vault_server).to_timeout
+      end
+
+      it 'renders an error' do
+        do_request
+        expect(json_body[:error]).to include('connection refused')
+        expect(response.status).to eq(500)
+      end
     end
 
     context 'when otp enabled' do
@@ -70,7 +85,7 @@ describe 'Api::V1::Security' do
       post '/api/v1/security/enable_2fa', params: params, headers: auth_header
     end
 
-    let(:params) {{ code: code }}
+    let(:params) { { code: code } }
     let(:code) { '12345' }
 
     context 'when code is missing' do
@@ -108,7 +123,7 @@ describe 'Api::V1::Security' do
     context 'when code is invalid' do
       before do
         expect(Vault::TOTP).to receive(:validate?)
-                           .with(current_account.uid, code) { false }
+          .with(current_account.uid, code) { false }
       end
 
       it 'renders an error' do
@@ -121,7 +136,7 @@ describe 'Api::V1::Security' do
     context 'when code is valid' do
       before do
         expect(Vault::TOTP).to receive(:validate?)
-                           .with(current_account.uid, code) { true }
+          .with(current_account.uid, code) { true }
       end
 
       it 'responses with success' do
@@ -130,8 +145,8 @@ describe 'Api::V1::Security' do
       end
 
       it 'enables otp' do
-        expect { do_request }.to change{current_account.reload.otp_enabled}
-                             .from(false).to(true)
+        expect { do_request }.to change { current_account.reload.otp_enabled }
+          .from(false).to(true)
       end
     end
   end
@@ -142,7 +157,7 @@ describe 'Api::V1::Security' do
     end
 
     let(:current_account) { create(:account, otp_enabled: otp_enabled) }
-    let(:params) {{ code: code }}
+    let(:params) { { code: code } }
     let(:code) { '12345' }
     let(:otp_enabled) { true }
 
@@ -169,7 +184,7 @@ describe 'Api::V1::Security' do
     context 'when code is invalid' do
       before do
         expect(Vault::TOTP).to receive(:validate?)
-                           .with(current_account.uid, code) { false }
+          .with(current_account.uid, code) { false }
       end
 
       it 'renders an error' do
@@ -182,7 +197,7 @@ describe 'Api::V1::Security' do
     context 'when code is valid' do
       before do
         expect(Vault::TOTP).to receive(:validate?)
-                           .with(current_account.uid, code) { true }
+          .with(current_account.uid, code) { true }
       end
 
       it 'responses with success' do

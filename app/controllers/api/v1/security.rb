@@ -21,9 +21,9 @@ module API
 
         def with_vault_error_handler
           yield
-        rescue Vault::HTTPClientError => e
+        rescue Vault::VaultError => e
           Rails.logger.error "#{e.class}: #{e.message}"
-          error!(e.message, 422)
+          error!(e.message, 500)
         end
       end
 
@@ -40,10 +40,7 @@ module API
         desc 'Generate qr code for 2FA'
         post '/generate_qrcode' do
           with_vault_error_handler do
-            if current_account.otp_enabled
-              error!('You are already enabled 2FA', 400)
-            end
-
+            error!('You are already enabled 2FA', 400) if current_account.otp_enabled
             Vault::TOTP.safe_create(current_account.uid, current_account.email)
           end
         end
@@ -55,9 +52,7 @@ module API
         end
         post '/enable_2fa' do
           with_vault_error_handler do
-            if current_account.otp_enabled
-              error!('You are already enabled 2FA', 400)
-            end
+            error!('You are already enabled 2FA', 400) if current_account.otp_enabled
 
             unless Vault::TOTP.validate?(current_account.uid, params[:code])
               error!('Your code is invalid', 422)
@@ -76,9 +71,7 @@ module API
         end
         post '/verify_code' do
           with_vault_error_handler do
-            unless current_account.otp_enabled
-              error!('You need to enable 2FA first', 400)
-            end
+            error!('You need to enable 2FA first', 400) unless current_account.otp_enabled
 
             unless Vault::TOTP.validate?(current_account.uid, params[:code])
               error!('Your code is invalid', 422)
